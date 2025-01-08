@@ -1,0 +1,124 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNGXrL60/2sIHbxHcwYj/dS",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Nehal0952/Generative-AI/blob/main/Assignment-1(2)\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9Gw_l20MPRzH",
+        "outputId": "2a453ec2-b789-428e-e20e-ff1fe859d078"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Manual Metrics:\n",
+            "Accuracy: 0.4583333333333333\n",
+            "Class 0: {'precision': 0.6666666666666666, 'recall': 0.4, 'f1_score': 0.5}\n",
+            "Class 1: {'precision': 0.3333333333333333, 'recall': 0.2857142857142857, 'f1_score': 0.30769230769230765}\n",
+            "Class 2: {'precision': 0.4166666666666667, 'recall': 0.7142857142857143, 'f1_score': 0.5263157894736842}\n",
+            "\n",
+            "Library Metrics:\n",
+            "Accuracy: 0.4583333333333333\n",
+            "Class 0: Precision: 0.67, Recall: 0.40, F1-Score: 0.50\n",
+            "Class 1: Precision: 0.33, Recall: 0.29, F1-Score: 0.31\n",
+            "Class 2: Precision: 0.42, Recall: 0.71, F1-Score: 0.53\n",
+            "Class macro avg: Precision: 0.47, Recall: 0.47, F1-Score: 0.44\n",
+            "Class weighted avg: Precision: 0.50, Recall: 0.46, F1-Score: 0.45\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Table 2 data\n",
+        "Y_actual = [0, 0, 1, 1, 2, 0, 0, 0, 1, 0, 2, 0, 0, 1, 1, 2, 2, 1, 0, 2, 1, 0, 2, 2]\n",
+        "Y_pred = [0, 1, 1, 2, 2, 0, 0, 1, 0, 2, 0, 2, 1, 2, 2, 1, 2, 2, 0, 2, 1, 2, 2, 2]\n",
+        "\n",
+        "# Step 1: Manual Implementation of Metrics\n",
+        "def calculate_metrics_manual(y_actual, y_pred):\n",
+        "    from collections import Counter\n",
+        "\n",
+        "    # Initialize variables\n",
+        "    tp, fp, fn = Counter(), Counter(), Counter()\n",
+        "    for a, p in zip(y_actual, y_pred):\n",
+        "        if a == p:\n",
+        "            tp[a] += 1\n",
+        "        else:\n",
+        "            fp[p] += 1\n",
+        "            fn[a] += 1\n",
+        "\n",
+        "    # Unique classes\n",
+        "    classes = sorted(set(y_actual))\n",
+        "\n",
+        "    # Calculate metrics for each class\n",
+        "    metrics = {}\n",
+        "    for cls in classes:\n",
+        "        precision = tp[cls] / (tp[cls] + fp[cls]) if (tp[cls] + fp[cls]) > 0 else 0\n",
+        "        recall = tp[cls] / (tp[cls] + fn[cls]) if (tp[cls] + fn[cls]) > 0 else 0\n",
+        "        f1_score = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0\n",
+        "        metrics[cls] = {\n",
+        "            \"precision\": precision,\n",
+        "            \"recall\": recall,\n",
+        "            \"f1_score\": f1_score\n",
+        "        }\n",
+        "\n",
+        "    # Overall accuracy\n",
+        "    accuracy = sum(1 for a, p in zip(y_actual, y_pred) if a == p) / len(y_actual)\n",
+        "\n",
+        "    return metrics, accuracy\n",
+        "\n",
+        "# Step 2: Compare with Library Metrics\n",
+        "def calculate_metrics_library(y_actual, y_pred):\n",
+        "    from sklearn.metrics import classification_report, accuracy_score\n",
+        "\n",
+        "    accuracy = accuracy_score(y_actual, y_pred)\n",
+        "    report = classification_report(y_actual, y_pred, output_dict=True)\n",
+        "\n",
+        "    return report, accuracy\n",
+        "\n",
+        "# Manual calculation\n",
+        "manual_metrics, manual_accuracy = calculate_metrics_manual(Y_actual, Y_pred)\n",
+        "print(\"Manual Metrics:\")\n",
+        "print(\"Accuracy:\", manual_accuracy)\n",
+        "for cls, metrics in manual_metrics.items():\n",
+        "    print(f\"Class {cls}: {metrics}\")\n",
+        "\n",
+        "# Library calculation\n",
+        "library_metrics, library_accuracy = calculate_metrics_library(Y_actual, Y_pred)\n",
+        "print(\"\\nLibrary Metrics:\")\n",
+        "print(\"Accuracy:\", library_accuracy)\n",
+        "for cls, metrics in library_metrics.items():\n",
+        "    if isinstance(metrics, dict):\n",
+        "        print(f\"Class {cls}: Precision: {metrics['precision']:.2f}, Recall: {metrics['recall']:.2f}, F1-Score: {metrics['f1-score']:.2f}\")"
+      ]
+    }
+  ]
+}
